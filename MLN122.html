@@ -4101,7 +4101,7 @@
           {
             id: 153,
             question:
-              'Ở Việt Nam cũng như trên thế giới sử dụng thuật ngũ "cách mạng công nghiệp lần thứ tư" với hàm ý gì?',
+              'Ở Việt Nam cũng như trên thế giới sử dụng thuật ngữ "cách mạng công nghiệp lần thứ tư" với hàm ý gì?',
             options: [
               {
                 key: "A",
@@ -4684,7 +4684,7 @@
               { key: "C", text: "Từ giữa thế kỷ XVIII đến giữa thế kỷ XIX" },
               {
                 key: "D",
-                text: "Từ đầu những năm 60 của XX đến cuối thế kỷ XX)",
+                text: "Từ đầu những năm 60 của XX đến cuối thế kỷ XX",
               },
             ],
             answer: ["D"],
@@ -5089,9 +5089,9 @@
             question:
               "Khối lượng giá trị thặng dư được tính bằng công thức nào?",
             options: [
-              { key: "A", text: "M = m'x p'" },
-              { key: "B", text: "M=m' x V" },
-              { key: "C", text: "M=m'xt'" },
+              { key: "A", text: "M = m' x p'" },
+              { key: "B", text: "M = m' x V" },
+              { key: "C", text: "M = m' x t'" },
             ],
             answer: ["B"],
             type: "single",
@@ -5420,7 +5420,7 @@
               { key: "A", text: "Tư bản hóa tư liệu tiêu dùng" },
               { key: "B", text: "Tư bản hóa giá trị thặng dư" },
               { key: "C", text: "Tư bản hóa sức lao động" },
-              { key: "D", text: "Tư bản hóa giá trị sản xuất)" },
+              { key: "D", text: "Tư bản hóa giá trị sản xuất" },
             ],
             answer: ["B"],
             type: "single",
@@ -10936,7 +10936,7 @@
             ],
             answer: ["A"],
             type: "single",
-            note: "ASEM 1996, APEC 1998",
+            note: "ASEAB 1995, ASEM 1996, APEC 1998",
             sourcePage: "Markdown import",
             needsReview: !1,
           },
@@ -13315,33 +13315,35 @@
           render());
       }
       function resetProgress() {
-      if (!confirm(
-          "Reset toàn bộ tiến độ, câu sai, bookmark và bài thi hiện tại?"
-      )) {
+        if (
+          !confirm(
+            "Reset toàn bộ tiến độ, câu sai, bookmark và bài thi hiện tại?",
+          )
+        ) {
           return;
+        }
+
+        const currentMode = state.mode;
+        const currentPart = state.practicePart;
+        const currentExamPart = state.examPart;
+
+        state = createDefaultState();
+
+        state.mode = currentMode;
+        state.practicePart = currentPart;
+        state.examPart = currentExamPart;
+
+        state.index = 0;
+
+        focusedOptionKey = "";
+
+        localStorage.removeItem(STORAGE_KEY);
+
+        els.practicePartSelect.value = String(currentPart);
+        els.examPartSelect.value = String(currentExamPart);
+
+        render();
       }
-
-      const currentMode = state.mode;
-      const currentPart = state.practicePart;
-      const currentExamPart = state.examPart;
-
-      state = createDefaultState();
-
-      state.mode = currentMode;
-      state.practicePart = currentPart;
-      state.examPart = currentExamPart;
-
-      state.index = 0;
-
-      focusedOptionKey = "";
-
-      localStorage.removeItem(STORAGE_KEY);
-
-      els.practicePartSelect.value = String(currentPart);
-      els.examPartSelect.value = String(currentExamPart);
-
-      render();
-    }
       function toggleBookmark() {
         const n = currentQuestion();
         n &&
