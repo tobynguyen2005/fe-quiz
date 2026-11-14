@@ -676,10 +676,10 @@
         border-radius: 16px;
         color: var(--text);
         background: #fff;
-        box-shadow: 0 24px 80px rgba(15, 23, 42, .28);
+        box-shadow: 0 24px 80px rgba(15, 23, 42, 0.28);
       }
       .solution-dialog::backdrop {
-        background: rgba(15, 23, 42, .62);
+        background: rgba(15, 23, 42, 0.62);
         backdrop-filter: blur(3px);
       }
       .solution-dialog-header {
@@ -696,7 +696,7 @@
         color: var(--brand);
         font-size: 11px;
         font-weight: 900;
-        letter-spacing: .08em;
+        letter-spacing: 0.08em;
         text-transform: uppercase;
       }
       .solution-dialog-header h2 {
@@ -786,15 +786,25 @@
     <script>
       window.MathJax = {
         tex: {
-          inlineMath: [['\\(', '\\)']],
-          displayMath: [['\\[', '\\]']],
+          inlineMath: [["\\(", "\\)"]],
+          displayMath: [["\\[", "\\]"]],
         },
         options: {
-          skipHtmlTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code'],
+          skipHtmlTags: [
+            "script",
+            "noscript",
+            "style",
+            "textarea",
+            "pre",
+            "code",
+          ],
         },
       };
     </script>
-    <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    ></script>
   </head>
   <body>
     <a href="./index.html" class="back-home">
@@ -980,13 +990,22 @@
         <div>Nhiều đáp án: chọn đủ rồi <kbd>Enter</kbd> xác nhận</div>
       </div>
     </aside>
-    <dialog id="solutionDialog" class="solution-dialog" aria-labelledby="solutionTitle">
+    <dialog
+      id="solutionDialog"
+      class="solution-dialog"
+      aria-labelledby="solutionTitle"
+    >
       <div class="solution-dialog-header">
         <div>
           <p class="solution-dialog-kicker">MLN122 · Hướng dẫn giải</p>
           <h2 id="solutionTitle">Lời giải chi tiết</h2>
         </div>
-        <button id="closeSolutionBtn" class="solution-close" type="button" aria-label="Đóng lời giải">
+        <button
+          id="closeSolutionBtn"
+          class="solution-close"
+          type="button"
+          aria-label="Đóng lời giải"
+        >
           <i class="fa-solid fa-xmark" aria-hidden="true"></i>
         </button>
       </div>
@@ -3925,7 +3944,7 @@
           {
             id: 145,
             question:
-              "Trong nền kinh tế thị trường định hướng xã hội chủ nghĩa, thành phần kinh tế nào giữ vai trò",
+              "Trong nền kinh tế thị trường định hướng xã hội chủ nghĩa, thành phần kinh tế nào giữ vai trò chủ đạo?",
             options: [
               { key: "A", text: "Thành phần kinh tế nhà nước" },
               { key: "B", text: "Thành phần kinh tế tư nhân" },
@@ -13296,14 +13315,33 @@
           render());
       }
       function resetProgress() {
-        confirm(
-          "Reset toàn bộ tiến độ, câu sai, bookmark và bài thi hiện tại?",
-        ) &&
-          ((state = createDefaultState()),
-          (focusedOptionKey = ""),
-          localStorage.removeItem(STORAGE_KEY),
-          render());
+      if (!confirm(
+          "Reset toàn bộ tiến độ, câu sai, bookmark và bài thi hiện tại?"
+      )) {
+          return;
       }
+
+      const currentMode = state.mode;
+      const currentPart = state.practicePart;
+      const currentExamPart = state.examPart;
+
+      state = createDefaultState();
+
+      state.mode = currentMode;
+      state.practicePart = currentPart;
+      state.examPart = currentExamPart;
+
+      state.index = 0;
+
+      focusedOptionKey = "";
+
+      localStorage.removeItem(STORAGE_KEY);
+
+      els.practicePartSelect.value = String(currentPart);
+      els.examPartSelect.value = String(currentExamPart);
+
+      render();
+    }
       function toggleBookmark() {
         const n = currentQuestion();
         n &&
@@ -13326,7 +13364,7 @@
         if (currentList.length <= 1) return;
         focusedOptionKey = "";
         let n = state.index;
-        for (; n === state.index;)
+        for (; n === state.index; )
           n = Math.floor(Math.random() * currentList.length);
         ((state.index = n), saveState(), render());
       }
@@ -13495,15 +13533,18 @@
           87: "Part 2 · Câu 37 · Giá trị hàng hóa",
           463: "Part 10 · Câu 13 · Giá trị thặng dư",
         };
-        els.solutionTitle.textContent = titles[question.id] || "Lời giải chi tiết";
+        els.solutionTitle.textContent =
+          titles[question.id] || "Lời giải chi tiết";
         els.solutionContent.innerHTML = solutionHtml;
         if (!els.solutionDialog.open) els.solutionDialog.showModal();
 
         if (window.MathJax?.typesetPromise) {
           window.MathJax.typesetClear?.([els.solutionContent]);
-          window.MathJax.typesetPromise([els.solutionContent]).catch((error) => {
-            console.error("Không thể render công thức Toán:", error);
-          });
+          window.MathJax.typesetPromise([els.solutionContent]).catch(
+            (error) => {
+              console.error("Không thể render công thức Toán:", error);
+            },
+          );
         }
         els.closeSolutionBtn.focus();
       }

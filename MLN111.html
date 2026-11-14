@@ -11741,13 +11741,34 @@
           render());
       }
       function resetProgress() {
-        confirm(
-          "Reset toàn bộ tiến độ, câu sai, bookmark và bài thi hiện tại?",
-        ) &&
-          ((state = createDefaultState()),
-          (focusedOptionKey = ""),
-          localStorage.removeItem(STORAGE_KEY),
-          render());
+        if (
+          !confirm(
+            "Reset toàn bộ tiến độ, câu sai, bookmark và bài thi hiện tại?",
+          )
+        ) {
+          return;
+        }
+
+        const currentMode = state.mode;
+        const currentPart = state.practicePart;
+        const currentExamPart = state.examPart;
+
+        state = createDefaultState();
+
+        state.mode = currentMode;
+        state.practicePart = currentPart;
+        state.examPart = currentExamPart;
+
+        state.index = 0;
+
+        focusedOptionKey = "";
+
+        localStorage.removeItem(STORAGE_KEY);
+
+        els.practicePartSelect.value = String(currentPart);
+        els.examPartSelect.value = String(currentExamPart);
+
+        render();
       }
       function toggleBookmark() {
         const n = currentQuestion();
@@ -11771,7 +11792,7 @@
         if (currentList.length <= 1) return;
         focusedOptionKey = "";
         let n = state.index;
-        for (; n === state.index;)
+        for (; n === state.index; )
           n = Math.floor(Math.random() * currentList.length);
         ((state.index = n), saveState(), render());
       }
