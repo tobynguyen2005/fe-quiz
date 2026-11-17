@@ -11566,7 +11566,7 @@
           checked: {},
           bookmarks: [],
           practicePart: 0,
-          examPart: 0,
+          examPart: -1,
           examIds: [],
           examSubmitted: !1,
         };
@@ -11582,6 +11582,11 @@
       let state = loadState(),
         currentList = [],
         focusedOptionKey = "";
+      const EXAM_SCOPE_MIGRATION_KEY = `${STORAGE_KEY}_exam_scope_v2`;
+      if (localStorage.getItem(EXAM_SCOPE_MIGRATION_KEY) !== "1") {
+        state.examPart = -1;
+        localStorage.setItem(EXAM_SCOPE_MIGRATION_KEY, "1");
+      }
       const QUESTIONS_PER_PART = 50;
       function partCount() {
         return Math.ceil(source.length / QUESTIONS_PER_PART);
@@ -11632,6 +11637,12 @@
       function populatePartSelects() {
         [els.practicePartSelect, els.examPartSelect].forEach((n) => {
           n.innerHTML = "";
+          if (n === els.examPartSelect) {
+            const allOption = document.createElement("option");
+            allOption.value = "-1";
+            allOption.textContent = `Tất cả câu hỏi (${source.length} câu)`;
+            n.appendChild(allOption);
+          }
           for (let t = 0; t < partCount(); t += 1) {
             const e = t * QUESTIONS_PER_PART + 1,
               h = Math.min((t + 1) * QUESTIONS_PER_PART, source.length),
@@ -11694,7 +11705,7 @@
           render());
       }
       function makeExam() {
-        const n = getPartQuestions(state.examPart);
+        const n = (state.examPart === -1 ? [...source] : getPartQuestions(state.examPart));
         ((state.examIds = shuffle([...n]).map((n) => n.id)),
           (state.index = 0),
           (state.examSubmitted = !1));
@@ -11898,7 +11909,7 @@
           ),
           (els.practicePartSelect.value = String(state.practicePart)),
           (els.examPartSelect.value = String(state.examPart)));
-        const t = getPartQuestions(state.examPart).length;
+        const t = state.examPart === -1 ? source.length : getPartQuestions(state.examPart).length;
         ((els.startExamBtn.textContent = `Bắt đầu thi thử (${t} câu)`),
           els.submitExamBtn.classList.toggle(
             "hidden",
@@ -11932,8 +11943,12 @@
           (els.sideNextBtn.disabled = els.nextBtn.disabled),
           "exam" === state.mode
             ? (els.modeLabel.textContent = state.examSubmitted
-                ? `Thi thử · Part ${state.examPart + 1} · Đã nộp bài`
-                : `Thi thử · Part ${state.examPart + 1}`)
+                ? (state.examPart === -1
+                    ? `Thi thử · Toàn bộ ngân hàng · Đã nộp bài`
+                    : `Thi thử · Part ${state.examPart + 1} · Đã nộp bài`)
+                : (state.examPart === -1
+                    ? `Thi thử · Toàn bộ ngân hàng`
+                    : `Thi thử · Part ${state.examPart + 1}`))
             : "wrong" === state.mode
               ? (els.modeLabel.textContent =
                   "Ôn lại câu sai (toàn bộ ngân hàng)")
@@ -12032,7 +12047,7 @@
           (els.feedback.textContent = `Kết quả thi thử: ${t}/${n} câu đúng.`));
       }
       ((state.practicePart = clampPartIndex(state.practicePart)),
-        (state.examPart = clampPartIndex(state.examPart)),
+        (state.examPart = Number(state.examPart) === -1 ? -1 : clampPartIndex(state.examPart)),
         els.practiceModeBtn.addEventListener("click", () =>
           setMode("practice"),
         ),
@@ -12045,7 +12060,7 @@
             render());
         }),
         els.examPartSelect.addEventListener("change", (n) => {
-          ((state.examPart = clampPartIndex(n.target.value)),
+          ((state.examPart = Number(n.target.value) === -1 ? -1 : clampPartIndex(n.target.value)),
             makeExam(),
             saveState(),
             render());
