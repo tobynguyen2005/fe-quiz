@@ -3669,10 +3669,16 @@
           render());
       }
       function makeExam() {
-        const e = (state.examPart === -1 ? [...source] : getPartQuestions(state.examPart));
-        ((state.examIds = shuffle([...e]).map((e) => e.id)),
-          (state.index = 0),
-          (state.examSubmitted = !1));
+        const questions = state.examPart === -1
+          ? [...source]
+          : getPartQuestions(state.examPart);
+        const shuffled = shuffle([...questions]);
+        const selected = state.examPart === -1
+          ? shuffled.slice(0, QUESTIONS_PER_PART)
+          : shuffled;
+        state.examIds = selected.map((question) => question.id);
+        state.index = 0;
+        state.examSubmitted = !1;
       }
       function shuffle(e) {
         for (let t = e.length - 1; t > 0; t -= 1) {
@@ -3876,7 +3882,7 @@
           ),
           (els.practicePartSelect.value = String(state.practicePart)),
           (els.examPartSelect.value = String(state.examPart)));
-        const t = state.examPart === -1 ? source.length : getPartQuestions(state.examPart).length;
+        const t = state.examPart === -1 ? Math.min(QUESTIONS_PER_PART, source.length) : getPartQuestions(state.examPart).length;
         ((els.startExamBtn.textContent = `Bắt đầu thi thử (${t} câu)`),
           els.submitExamBtn.classList.toggle(
             "hidden",
@@ -4078,7 +4084,7 @@
       ) {
         const e = (state.examPart === -1 ? source : getPartQuestions(state.examPart)).map((e) => e.id),
           t = state.examIds || [];
-        (t.length === e.length &&
+        (t.length === Math.min(state.examPart === -1 ? QUESTIONS_PER_PART : e.length, e.length) &&
           t.every((t) => e.includes(t)) &&
           new Set(t).size === e.length) ||
           (makeExam(), saveState());

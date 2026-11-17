@@ -11705,10 +11705,16 @@
           render());
       }
       function makeExam() {
-        const n = (state.examPart === -1 ? [...source] : getPartQuestions(state.examPart));
-        ((state.examIds = shuffle([...n]).map((n) => n.id)),
-          (state.index = 0),
-          (state.examSubmitted = !1));
+        const questions = state.examPart === -1
+          ? [...source]
+          : getPartQuestions(state.examPart);
+        const shuffled = shuffle([...questions]);
+        const selected = state.examPart === -1
+          ? shuffled.slice(0, QUESTIONS_PER_PART)
+          : shuffled;
+        state.examIds = selected.map((question) => question.id);
+        state.index = 0;
+        state.examSubmitted = !1;
       }
       function shuffle(n) {
         for (let t = n.length - 1; t > 0; t -= 1) {
@@ -11909,7 +11915,7 @@
           ),
           (els.practicePartSelect.value = String(state.practicePart)),
           (els.examPartSelect.value = String(state.examPart)));
-        const t = state.examPart === -1 ? source.length : getPartQuestions(state.examPart).length;
+        const t = state.examPart === -1 ? Math.min(QUESTIONS_PER_PART, source.length) : getPartQuestions(state.examPart).length;
         ((els.startExamBtn.textContent = `Bắt đầu thi thử (${t} câu)`),
           els.submitExamBtn.classList.toggle(
             "hidden",
